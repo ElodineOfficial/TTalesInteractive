@@ -1,0 +1,4 @@
+[ {{user}}_details: 
+- {{user}}_haircolor: defaultHair
+- {{user}}_eyecolor: defaultEye
+- {{user}}_gender: defaultGender ]
