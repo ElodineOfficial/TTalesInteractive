@@ -10562,6 +10562,15 @@
       cursor: not-allowed;
     }
 
+.optionButton{
+  width:100%;
+  min-height:2.2rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
     textarea {
       background: var(--textarea-bg);
       border: 1px solid var(--button-border-color);
@@ -11155,29 +11164,116 @@
       text-decoration: underline;
     }
 
+/* ─── universal comment shell ─── */
+.comment{
+  position:relative;              /* create containing block for badge */
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  background:rgba(255,255,255,.06);   /* subtle shaded wrapper */
+  border-radius:8px;
+  padding:8px 12px;
+  margin:8px 0;
+  line-height:1.35;
+}
+
+.comment-body{
+  display:flex;        /* NEW – lets children sit on one row */
+  flex-wrap:wrap;
+  align-items:flex-start;
+  color:#fff;
+}
+
+.comment-label{
+  font-weight:600;
+  margin-right:4px;
+}
+
+/* ▼ revised badge */
+.comment-subhead{
+  font-size:.65rem;    /* “small” */
+  color:#9a9a9a;       /* neutral grey */
+  font-weight:500;
+  margin-left:auto;   /* NEW – eats the leftover space */
+  pointer-events:none; /* stay inert */
+  position:static;     /* no longer absolutely-positioned */
+}
+
+/* optional visual call-out for a pinned item */
+.comment-pinned .comment-subhead{
+  color:#ffbf00;                  /* gold-ish */
+}
+
+.comment-avatar{
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  object-fit:cover;
+  flex-shrink:0;
+}
+
+.comment.elo .comment-label   { color:#c34afc; }  /* pink-purple */
+.comment.turtle .comment-label{ color:#39ca71; }  /* green  */
+
+.comment.elo .comment-body,
+.comment.turtle .comment-body { color:#ffffff; }  /* force body back to white */
+
+
+
 /* Base styles for both panels */
-#options-panel, #news-panel {
-  display: block; /* Ensure they are visible by default; adjust as needed */
+#options-panel {
+ right: -100%;          /* push them completely off–screen         */ 
   width: 30%;
   height: 100%;
   position: fixed;
-  right: 0;
   top: 0;
   z-index: 500; /* Significantly high to ensure visibility over other elements */
   overflow: auto;
   background-color: black; /* Example background color */
   color: lightblue; /* Example text color */
   border: 7px solid rgb(191, 152, 100);
-  display: none;
-  /* Initially hidden */
   transition: right 0.5s ease;
   /* Add a smooth transition effect */
   animation-duration: 0.5s;
   animation-name: slideIn;
+  padding: 1rem;              /* new – space on all sides */
+  border-radius: var(--border-radius); /* matches the buttons */
+  
 }
+
 #news-panel {
-    z-index: 501;
+ right: -100%;          /* push them completely off–screen         */ 
+  width: 30%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 500; /* Significantly high to ensure visibility over other elements */
+  overflow: auto;
+  background-color: black; /* Example background color */
+  color: lightblue; /* Example text color */
+  border: 7px solid rgb(191, 152, 100);
+  transition: right 0.5s ease;
+  /* Add a smooth transition effect */
+  animation-duration: 0.5s;
+  animation-name: slideIn;
+  border-radius: var(--border-radius); /* matches the buttons */
+  
 }
+
+/* ② Give the footer inside #news-panel its own behaviour */
+#news-panel .news-footer {
+  border: 5px black;
+  flex: 0 0 auto;        /* don’t grow or shrink */
+  position: sticky;
+  bottom: 0;
+  background-color: inherit; /* match panel’s bg */
+  z-index: 1;             /* stay above scrolling content */
+  padding: 10px;
+  font-size: 14px;
+}
+
+/* === override when the panel is open === */
+#news-panel.open        { right: 0 !important; z-index: 600 !important; }
 
 
 /* Mobile styles using .isMobile for both panels */
@@ -11266,6 +11362,11 @@ body.isMobile #news-panel {
   width: 100%;
 }
 
+#options-panel, #news-panel { animation:none !important; }
+/* --- add this anywhere after the existing panel styles --- */
+.open{ right:0 !important; }
+
+
 /* Mobile-specific styles */
 @media (max-width: 768px) {
   .buttonGrid {
@@ -11344,12 +11445,12 @@ body.isMobile #news-panel {
       <!-- <div id="chatThreadFolders" data-current-folder-path=""></div> -->
       <div id="chatThreads" data-current-folder-path=""></div>
       <div id="appOptions">
-        <button id="RightPanelToggle"
-          title="Click this button to reveal/hide the prompt screen, custom code, and game stats."
+        <button id="toggleNews"
+          title="Click this button to reveal/hide the news."
           onclick="toggleNewsPanel()"> News</button>
-          <button id="RightPanelToggle"
-          title="Click this button to reveal/hide the prompt screen, custom code, and game stats."
-          onclick="toggleOptionsPanel()">Prompts</button>
+          <button id="toggleOptions"
+          title="Click this button to reveal/hide the options screen, custom code, and game stats."
+          onclick="toggleOptionsPanel()">Options</button>
         <div style="display:flex;">
           
 
@@ -19977,19 +20078,7 @@ if (modelName.startsWith("o1")) {
 
 <div
   id="options-panel"
-  style="
-    display: block;
-    width: 30%;
-    height: 100%;
-    position: fixed; /* Changed from relative to fixed to match CSS */
-    right: 0px;
-    top: 0; /* Added to match CSS */
-    overflow: auto; /* Added to match CSS */
-    background-color: black; /* Added to match CSS */
-    color: lightblue; /* Added to match CSS */
-  "
   bis_skin_checked="1"
-  class="slide-in-animation"
 >
 
   <button
@@ -20024,285 +20113,561 @@ if (modelName.startsWith("o1")) {
       age or older.
     </p>
   </div>
-  <div class="buttonGrid">
-  <select
-    class="optionButton"
-    title="Select an option to change the narration mode. Everything is set to a default SFW mode unless otherwise clicked."
-    id="narrationDropdown"
-  >
-    <option value="default">Narration: SFW</option>
-    <option value="GPT4">SFW GPT4-preview</option>
-    <option value="NSFW">Narration: NSFW</option></select
-  ><button
-    class="optionButton"
-    title="Click this button to end the narration loop.
-Bots may hyprfixate on narration, clicking this button will fix that in the NEXT post made by the AI.
-Be sure to click a SFW or NSFW option after a couple of posts to return to better quality once the loop is fixed."
-    id="dialogueFixButton"
-  >
-    Narration Loop Fix</button
-  ><button
-    class="optionButton"
-    title="Click this button to enable a prompt that will correct an issue where the AI and story become stale.
-This will force the plot to move forward by making the AI think about the narration and suspense.
-This will employ on the next post and help foreshadow the next plot point."
-    id="actionFixButton"
-  >
-    No Action Fix-Enable</button
-  ><button
-    class="optionButton"
-    title="Click this button to enable TTS using your Elevenlabs API key."
-    id="labsButton"
-  >
-    Enable Elevenlabs</button
-  ><button class="optionButton" id="statsButton" title="This button will toggle stats on and off.">
-    Toggle Stats</button
-  ><button
-    class="optionButton"
-    title="Customize the text style for the AI and yourself."
-    id="textStyleButton"
-  >
-    Customize Text</button
-  ><button
-    class="optionButton"
-    title="This button will enable an AI to comment on your adventures."
-    id="commentatorCode"
-  >
-    Deploy Whiskers</button
-  ><button class="optionButton" onclick="showGameInfo()" id="showGameInfoBtn">Show Game Info</button
-  ><button class="optionButton" onclick="showEncyclopedia()" id="showEncyclopediaBtn">Show Encyclopedia</button
-  ><button
-    class="optionButton"
-    title="Click me to help the AI remember specific details about your current character."
-    id="userDetailButton"
-  >
-    {{user}} details</button
-  ><button class="optionButton" id="swapButton">
-    Swap to:
-  </button>
-  <select id="dropdown" class="optionButton">
+<!--  ─────────────── OPTIONS PANEL ─────────────── -->
+<div class="buttonGrid">
+
+  <!-- ─── Narration assistance ─────────────────── -->
+  <h3 style="grid-column:1 / -1; margin:8px 0 4px;">Narration assistance</h3>
+
+  <select  id="narrationDropdown" class="optionButton"
+           title="Select an option to change the narration mode.">
+    <option value="default">Narration&nbsp;– SFW</option>
+    <option value="GPT4">SFW&nbsp;GPT-4 preview</option>
+    <option value="NSFW">Narration&nbsp;– NSFW</option>
   </select>
-    <button
-    id="foresightCode"
-    title="This button will enable the AI to plan things out."
-  >
+
+  <button id="dialogueFixButton" class="optionButton"
+          title="End a narration loop on the next AI post.">
+    Narration Loop Fix
+  </button>
+
+  <button id="actionFixButton" class="optionButton"
+          title="Jump-start the plot when it stalls.">
+    No-Action Fix
+  </button>
+
+  <button id="foresightCode" class="optionButton"
+          title="Let the AI plan scene beats ahead.">
     Enable Foresight
+  </button>
 
+
+  <!-- ─── Customization ────────────────────────── -->
+  <h3 style="grid-column:1 / -1; margin:12px 0 4px;">Customization</h3>
+
+<button id="userDetailButton" class="optionButton"
+        title="Help the AI remember details about you.">
+  {{user}} details
+</button>
+
+<button id="bannedWordButton" class="optionButton"
+        title="Manage the list of banned words and phrases.">
+  Banned Word List
+</button>
+
+  <button id="labsButton" class="optionButton"
+          title="Enable TTS with your ElevenLabs key.">
+    Enable ElevenLabs
+  </button>
+
+  <button id="statsButton" class="optionButton"
+          title="Toggle in-chat statistics on or off.">
+    Toggle Stats
+  </button>
+
+  <button id="textStyleButton" class="optionButton"
+          title="Adjust text colours, fonts and size.">
+    Customize Text
+  </button>
+
+<button id="safeWordButton" class="optionButton"
+        title="Choose a safe word, the AI will tone down whatever action it is participating in.">
+  Enable Safe Word
+</button>
+
+<button id="noOocButton" class="optionButton"
+        title="Tell the AI to stay strictly in-character (no OOC).">
+  Disable OOC
+</button>
+
+<button id="innerThoughtsButton" class="optionButton"
+        title="Allows you to see what a character is thinking behind any particular action.">
+  Enable Inner Thoughts
+</button>
+
+<button id="recapThreadButton" class="optionButton"
+        title="Recaps your current thread.">
+  Recap Thread
+</button>
+
+
+<!-- ─── Other ────────────────────────────────── -->
+<h3 style="grid-column:1 / -1; margin:12px 0 4px;">Other</h3>
+
+<button id="swapButton" class="optionButton">Swap to:</button>
+<select id="dropdown" class="optionButton"></select>
+
+<button id="commentatorCode" class="optionButton"
+        title="Deploy the Whiskers commentary AI.">
+  Deploy Whiskers
+</button>
+
+<button id="applyGreetingButton" class="optionButton"
+        title="Insert your saved greeting into the chat.">
+  Apply Greeting
+</button>
+
+<button id="purgeGreetingButton" class="optionButton"
+        title="Delete all saved custom greetings.">
+  Purge Custom Greetings
+</button>
+
+</div>
+</div>
+<!--  ─────────────── END OPTIONS PANEL ─────────────── -->
+
+
+ <!-- News Panel -->
+<div id="news-panel" class="news-panel">
+  <!-- Close button -->
+   <button
+    class="button"
+    style="position: relative; left: 10px; top: 10px"
+    onclick="toggleNewsPanel()"
+  >
+    X
+  </button>
+
+  <!-- Decorative background image -->
+  <img src="https://ttalesinteractive.com/graphics/pencil.png" alt="" class="news-panel-background" aria-hidden="true" />
+
+  <!-- Version header -->
+  <header class="news-header">
+    <h2 class="version">Welcome to Beta: 2.3.3</h2>
+  </header>
+
+  <!-- Feed container -->
+  <section class="news-feed">
+    <!-- ───────────────────────────────────────────────────────────────────── -->
+    <!-- Pinned comment → Elo                                                -->
+    <!-- ───────────────────────────────────────────────────────────────────── -->
+
+
+<article class="comment elo pinned">
+  <img
+    class="comment-avatar"
+    src="https://files.catbox.moe/lkvnqq.png"
+    alt="Elo avatar"
+  />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+    <p>
+      [Pinned Comment] Enjoying the site? Consider
+      <a
+        href="https://www.buymeacoffee.com/elodine"
+        target="_blank"
+        rel="noopener"
+        style="color: #add8e6;"
+      >
+        donating to our BuyMeACoffee
+      </a>
+      or
+      <a
+        href="https://www.youtube.com/@elodinecodes"
+        target="_blank"
+        rel="noopener"
+        style="color: #add8e6;"
+      >
+        tuning into a video on Youtube
+      </a>
+      to help keep this place ad free.
+    </p>
+  </div>
+</article>
+
+
+
+<!-- 06/01 → Elo -->
+<article class="comment elo">
+  <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+     [6/01/24] Patch 2.3.3 is now live! The updates Turtle and I have been working on the last two months are finished. If you encounter any bugs, as per usual, please let us know via discord or email.
+	 </div>
+</article>
+
+    <!-- 6⁄01 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [6/01/24] Finished the visual overhaul on the news panel uwu
+		</div>
+    </article>
+
+<!-- 5/29 → Elo -->
+<article class="comment elo">
+  <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+    [5/29/25] Finished the Prompt/Opinion panel overhaul. Added inner thoughts and a thread recap option! I might be tweaking the prompt side of these a little bit so they function smoother as time goes on.
+  </div>
+</article>
+
+<!-- 5/28 → Elo -->
+<article class="comment elo">
+  <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+    [5/28/25] The prompt window has been renamed the options window. Banned words and a disable OOC feature have been added along-side an optional safe word function. Debugging and some minor visual tweaks were made. New buttons coming next week!
+  </div>
+</article>
+
+    <!-- 4⁄20 → Turtle -->
+    <article class="comment elo">
+       <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [4/20/24] Began the overhaul on the opinion panel!
+		</div>
+    </article>
+
+<!-- 2/28 → Elo -->
+<article class="comment elo">
+  <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+    [2/28/25] GPT 4.5 is live! Be careful! It’s expensive!
+  </div>
+</article>
+
+
+    <!-- 2⁄16 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [2/16/25] The 2.1.2 update makes it so that users can now use o‑series models without any fancy tricks. The last patch did not properly address every pitfall to being able to interact with this model. This has been fixed ♥
+      </div>
+    </article>
+
+    <!-- 1⁄24 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [1/24/25] Phew! 2.1.1 is good to go! o1, o1 mini and preview now work as intended. While we were able to ping these models before, messages did not properly send and receive. This has been fixed.<br />
+      </div>
+    </article>
+
+    <!-- 12⁄15 → Elo (Alt‑Intro feature) -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [12/15/24] 2.0 is live! You might notice an additional button on the prompt panel — this is an alternative greeting button. Store infinite alt introductions locally, change them out at the click of a button, or choose one of our supplied alternative greetings to go on a variety of different AI adventures with your characters. For now, the alternative introductions offered by us are blank and will be coming over the next couple of days while we ensure that this feature is working smoothly for user‑created greetings. Have fun!<br />
+      </div>
+    </article>
+
+    <!-- 12⁄15 → Elo (patch rollout) -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [12/15/24] December patch is slowly being rolled out. All dead links have been updated. If you notice any issues, as always, please report them in Discord! Thanks!<br />
+      </div>
+    </article>
+
+    <!-- 10⁄30 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [10/30/24] We’ve continued dropping some new characters and bots over the course of October! Feel free to join us on YouTube or Discord to check out even more content.<br />
+      </div>
+    </article>
+
+    <!-- 10⁄05 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [10/5/24] Another content‑jam drop has landed with 1.9.8! We’re introducing two more functional bots at the bottom of the page: a coding assistant and a bot that replicates the COT or <code>o‑1 strawberry</code> model from OpenAI.<br />
+      </div>
+    </article>
+
+    <!-- 10⁄03 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [10/3/24] It’s October! And that means the content jam has started with 1.9.7 introducing two new characters! We’ll be pushing out a number of characters and QoL improvements over this month. We all hope you enjoy! ♥<br />
+      </div>
+    </article>
+
+    <!-- 9⁄24 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [9/24/24] 1.9.6 — Universal Patch has been implemented. Old alpha versions now utilise beta 1.9.6 code to help resolve edge‑case bugs that occurred between old and new versions communicating. This does not change your chats, characters, keys, or any aspect of your data. Thanks!<br />
+      </div>
+    </article>
+
+    <!-- 9⁄20 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [9/20/24] Right! SO! 1.9.4 was buggy, that’s been fixed with 1.9.5 — I’m really sorry this didn’t get out sooner! Model rights now flag properly and chatgpt‑latest is working again.<br />
+      </div>
+    </article>
+
+    <!-- 9⁄13 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [9/13/24] Well it’s about darn time 1.9.4 got here. It’s taken a bit of work to get o1-preview and o1-mini up and running alongside chatgpt‑4o‑latest! If you encounter any errors, make sure to report them on Discord so they can be addressed right away!<br />
+      </div>
+    </article>
+
+    <!-- 8⁄06 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [8/6/24] Say hello to 1.9.3 and GPT‑4 Long Output! This model is expensive as all get‑out but promises longer outputs. This is an alpha model not everyone has access to currently. I’ve changed the lore and summarisation prompts in hopes of preserving the original language of the conversation, something our international users have been asking for. At the moment it is still translating to English; I’ll continue to search for fixes. If you find any problems, I’m happy to help!<br />
+      </div>
+    </article>
+
+    <!-- 7⁄18 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [7/18/24] Hey hey! GPT‑4‑o Mini has been added — and some small bug‑fixes have come with it. A recent bug regarding model context (thanks Jenz!) has been solved and some tooltips updated. See you guys in early Aug!<br />
+      </div>
+    </article>
+
+    <!-- 7⁄08 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [7/8/24] Great news everyone! We finally have different model options for handling memory and lore now — yay! I’ve also cleaned up the connections for all GPT models. More updates are coming early Aug! If you run into any issues from this update or any other, please remember to report them on Discord!<br />
+      </div>
+    </article>
+
+    <!-- 5⁄14 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [5/14/24] GPT‑o added and functioning in the model list. Costs are not 100 % accurate with this model yet. GPT‑instruct removed due to no longer being in service.<br />
+      </div>
+    </article>
+
+    <!-- 4⁄23 → Elo & Turtle (combined) -->
+    <article class="comment elo turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [4/23/24] Placeholder feature was pushed live. ECHO pseudocode prompts are being fine‑tuned <a href="https://ttalesinteractive.com/?p=1950" target="_blank" rel="noopener" class="comment-link">here</a>. Updates have been made to token‑cost calculation.<br />
+      </div>
+    </article>
+
+    <!-- 4⁄15 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [4/15/24] Added a new placeholder — PRESENTING THE {{word:}} PLACEHOLDER! Basically, this placeholder will choose the correct word based on the pronouns you’ve set up. For example, the placeholder {{word:run/runs}} will be replaced with the second word runs if the user pronouns are not he/him or she/her.
+      </div>
+    </article>
+
+    <!-- 3⁄24 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [3/24/24] Fixed some bugs on the add‑character feature and added new placeholders — {{they}},{{them}}and {{their}}. These placeholders will be replaced with the pronouns you’ve set in the settings. These placeholders are not currently used in our characters — that is up to <span class="comment-label">[Elo]</span> to implement. <em>(New characters will have this feature implemented. — Eli)</em><br />
+      </div>
+    </article>
+
+    <!-- 3⁄21 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [3/21/24] Finally managed to find a way to extract the character data from PNG images… so yippee, now you can import character cards from any other site. Note that, for it to import the character image too, you’ll need to set your <a href="https://api.imgbb.com/" target="_blank" rel="noopener" class="comment-link">imgbb API key</a> in the settings.<br />
+      </div>
+    </article>
+
+    <!-- 3⁄07 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [3/7/24] Jess and Tarek (Nyar) character cards have been added to both TTI and cAI. More characters and a potential art overhaul will be coming soon, as well as “in development” tags for certain characters that may be subject to upcoming changes when first released. Anyway! See you guys soon!<br />
+      </div>
+    </article>
+
+    <!-- 2⁄22 → Elo (UI‑update) -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [2/22/24] You’re probably thinking things look just a little different — and you’re right! Thanks to our new dev Turtle Guy we’ve got a much more responsive prompt screen and a new news tab where you can keep an eye on the latest in development. We’ve obviously moved the prompt button! It now sits just beneath your chat threads in the bottom‑left of your screen. Thanks for checking in, we’ll see you soon for a new update. ♥<br />
+      </div>
+    </article>
+
+    <!-- 2⁄22 → Elo (blend) -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [2/22/24] Turtle Guy’s news panel and prompt‑screen fixes were blended with Bimble’s code decompression for more reasonable development and some minor hot‑fixes to styling.<br />
+      </div>
+    </article>
+
+    <!-- 2⁄08 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [2/08/24] Okay, so I got scolded for removing the buttons because apparently THEY ACTUALLY DID SOMETHING and we had to roll back… My bad lol. Anyway, now it works properly (I hope).<br />
+      </div>
+    </article>
+
+    <!-- 2⁄03 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [2/03/24] I deleted all the buttons that were above these texts before… In my defence they did nothing at all, so I made this into a news page. I will eventually re‑add all those buttons in a separate overlay or window — I don’t know… Also added that my comments are green and Elo’s are pink. Why? CAUSE I CAN… Now I’m wondering if any of y’all were using this on mobile… HOW — like the site is as responsive as a 90s site… I promise I’m working on it.<br />
+      </div>
+    </article>
+
+    <!-- 2⁄02 → Turtle -->
+    <article class="comment turtle">
+      <img class="comment-avatar" src="https://files.catbox.moe/jx78sw.png" alt="Turtle avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Turtle]</span>
+        [2/02/24] So IDK what to write here, I’m not as good at this as Elodine. I have been indirectly contributing to the project for a while, and now I’m officially part of it… sup! Changes in this version: The prompts button has been moved with the rest of the buttons (right‑down corner). The arrow to deploy the left panel now flips when it is closed (blame my OCD). The buttons now have a smoother highlight animation.<br />
+      </div>
+    </article>
+
+    <!-- 1⁄12 → Elo -->
+    <article class="comment elo">
+      <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+      <div class="comment-body">
+        <span class="comment-label">[Elo]</span>
+        [1/12/24] Lorebooks now work correctly. I moved the proxy server that handles lorebooks over to our main server after rewriting its code. Have fun!<br />
+      </div>
+    </article>
+
+    <!-- //all of the news comments go here -->
+  </section>
+
+  <!-- Footer links -->
+  <footer class="news-footer">
+    <nav class="news-links">
+      <a class="link" href="https://discord.gg/Tr8vvRUuCv" target="_blank" rel="noopener">Discord &amp; Bug Reports</a>
+      <a class="link" href="https://ttalesinteractive.com/?page_id=1560" target="_blank" rel="noopener">Support Us</a>
+      <a class="link" href="https://ttalesinteractive.com/turtle/editor.html" target="_blank" rel="noopener">Universal Chat Converter.</a>
+      <a class="link" href="https://ttalesinteractive.com/?page_id=1550" target="_blank" rel="noopener">Terms of Service</a>
+      <a class="link" href="https://ttalesinteractive.com/?page_id=1552" target="_blank" rel="noopener">Privacy Policy</a>
+    </nav>
+  </footer>
+</div>
 
 
 </div>
-</div>
+
+<script>
+ function openPanel(panel) {
+   if (!panel) return;
+
+   // If the panel is still sliding out, wait for that animation to end
+   if (panel.dataset.closing === '1') {
+     panel.addEventListener(
+       'transitionend',
+       () => openPanel(panel),   // try again once the slide-out finishes
+       { once: true }
+     );
+     return;
+   }
+
+   panel.style.right   = '';      // wipe any leftover inline px value
+   panel.style.display = 'block';
+   panel.classList.add('open');
+ }
+function closePanel(panel) {
+  if (!panel) return Promise.resolve();
+
+  /* already closed? → just clear the lock */
+  if (!panel.classList.contains('open')) {
+    panel.dataset.closing = '0';
+    return Promise.resolve();
+  }
+  if (panel.dataset.closing === '1') return Promise.resolve();
+
+  panel.dataset.closing = '1';           // mark “in-flight”
+
+  return new Promise(resolve => {
+  const done = () => {
+    /* If the panel has already been re-opened, abort the hide */
+    if (panel.classList.contains('open')) {
+      panel.dataset.closing = '0';       // unlock for next toggle
+      panel.removeEventListener('transitionend', done);
+      return resolve();
+    }
+
+    panel.style.display  = 'none';
+    panel.style.right    = '';
+    panel.dataset.closing = '0';
+    panel.removeEventListener('transitionend', done);
+    resolve();
+  };
+
+  setTimeout(done, 650);
+  panel.addEventListener('transitionend', done, { once:true });
+  panel.classList.remove('open');
+});
+}
+
+
+let toggleBusy = false;
+const TOGGLE_COOLDOWN = 650; // -- matches your 0.5 s CSS + a little buffer
+
+/* ---------- global toggles (await the close) ------- */
+window.toggleNewsPanel = async () => {
+ if (toggleBusy) return;
+ toggleBusy = true;
+   const news = document.getElementById('news-panel');
+   const opts = document.getElementById('options-panel');
+   if (news.classList.contains('open')) {
+     await closePanel(news);
+   } else {
+     await closePanel(opts);
+     openPanel(news);
+   }
+ setTimeout(() => (toggleBusy = false), TOGGLE_COOLDOWN);
+};
+
+window.toggleOptionsPanel = async () => {
+ if (toggleBusy) return;
+ toggleBusy = true;
+   const news = document.getElementById('news-panel');
+   const opts = document.getElementById('options-panel');
+   if (opts.classList.contains('open')) {
+     await closePanel(opts);
+   } else {
+     await closePanel(news);
+     openPanel(opts);
+   }
+ setTimeout(() => (toggleBusy = false), TOGGLE_COOLDOWN);
+};
 
 
 
+/* ---------- first-load behaviour ------------------- */
+document.addEventListener('DOMContentLoaded', () =>
+  openPanel(document.getElementById('options-panel'))
+);
+</script>
 
-
-
-  <div id="news-panel">
-      <button class="button" style="position: relative; left: 10px; top: 10px;" onclick="toggleNewsPanel()">X</button>
-  <img class="news-panel-background" src="https://ttalesinteractive.com/graphics/pencil.png"></img>
-
-  <h2 class="version">Welcome to Beta: 2.1.3</h2>
-  
-      <p class="EloComment">
-    Pinned Comment: New year, new problems: TTI needs your help! Enjoying the site? Consider
-    <a href="https://www.buymeacoffee.com/elodine" target="_blank" class="EloCommentLink">donating to our BuyMeACoffee</a>
-    or<a href="https://www.youtube.com/@elodinecodes" target="_blank" class="EloCommentLink">tuning into a
-      video or two</a> to help keep this site going.
-  <p> 
-	<a href="https://ttalesinteractive.com/turtle/editor.html" target="_blank" class="EloCommentLink"> Click me for a universal chat converter.</a>
-      </p>
-	    <p>
-  </p>
-
-          <p class="EloComment">
-    2/28: GPT 4.5 is live! Be careful! It's expensive!
-  </p>
-
-
-          <p class="EloComment">
-    2/16: The 2.1.2 update makes it so that users can now use o series models without any fancy tricks. The last patch did not properly address every pitfall to being able to interact with this model. This has been fixed <3
-  </p>
-
-          <p class="EloComment">
-    1/24: 2.1.1 is good to go! o1, o1 mini and preview now work as intended. While we were able to ping these models before, messages did not properly send and recieve. This has been fixed.	<br>
-    - Elodine
-  </p>
-
-
-          <p class="EloComment">
-    12/15: 2.0 is live! You might notice an additional button on the prompt panel, this is an alternative greeting button. Store infinate alt introductions locally, change them out at the click of a button, or choose one of our own supplied alternative greetings to go on a variety of different AI adventures with your characters. For now, the alternative introductions offered by us are blank, and will be coming over the next couple of days while we ensure that this feature is working smoothly for alternative greetings created by the user. Have fun!
-	<br>
-    - Elodine
-  </p>
-
-          <p class="EloComment">
-    12/15: December patch is slowly being rolled out. All dead links have been updated. If you notice any issues, as always, please report them in discord! Thanks!
-	<br>
-    - Elodine
-  </p>
-
-          <p class="EloComment">
-    10/30: We've continued dropping some new characters and bots over the course of October! Feel free to join us on YouTube or Discord to check out even more content.
-	<br>
-    - Elodine
-  </p>
-  
-          <p class="EloComment">
-    10/5: Another content jam drop has landed with 1.9.8! We're introducing two more functional bots at the bottom of the page. They include an coding assistant and a bot that replicates the COT or o-1 strawberry model from OpenAI.
-	<br>
-    - Elodine
-  </p>
-
-        <p class="EloComment">
-    10/3: It's October! And that means the content jam has started with 1.9.7 introducing two new characters! We'll be pushing out a number of characters and QOL improvments over this month. We all hope you enjoy! <3
-	<br>
-    - Elodine
-  </p>
-
-        <p class="EloComment">
-    9/24: 1.9.6 - Universal Patch has been implemented. Old alpha versions now utelize beta 1.9.6 code to help resolve edge case bugs that occured between old and new versions communicating. To resolve this, alpha versions have been updated. This does not change your chats, characters, keys, or or any aspect of your data. Thanks!
-	<br>
-    - Elodine
-  </p>
-
-        <p class="EloComment">
-    9/20: Right! SO! 1.9.4 was buggy, that's been fixed with 1.9.5 I am really sorry this didn't get out sooner! Model rights now flag properly and chatgpt-latest is now working!
-	<br>
-    - Elodine
-  </p>
-  
-        <p class="EloComment">
-    9/13: Well it's about darn time 1.9.4 got here. It's taken a bit of work to get o1-preview and o1-mini up and running alongside chatgpt-4o-latest! If you encounter any erorrs, make sure to report them on Discord so they can be addressed right away!
-	<br>
-    - Elodine
-  </p>
-  
-        <p class="EloComment">
-    8/6: Say hello to 1.9.3 and GPT4 Long Output! This model is expensive as all getout but it promises longer outputs. This is an alpha model not everyone has access to currently. I've changed the lore and summarization prompts in hopes of preserving the original language of the conversation, something our international users have been asking for. At the moment it is still translating to English, I'll continue to search for fixes. If you find any problems, I'm happy to help! 
-	<br>
-    - Elodine
-  </p>
-
-        <p class="EloComment">
-    7/18: Hey, hey! GPT4-o Mini has been added! And some small bug fixes have come with it. A recent bug has been solved regarding model context (thanks Jenz!) and some tooltips have been updated. See you guys in early Aug!
-	<br>
-	<br>
-    - Elodine
-  </p>
-
-        <p class="EloComment">
-    7/8: Great news everyone! We finally have different model options for handling memory and lore now. Yay! I've also gone ahead and cleaned up the connections for all GPT models. More updates are coming early Aug! If you run into any issues from this update or any other please remember to report them to me on discord!
-    <br>
-    - Elodine
-  </p>
-  
-  
-        <p class="EloComment">
-    5/14: GPt-o added and functioning in the model list. Costs are not 100% accurate with this model yet. GPT-instruct removed due to no longer being in service.
-    <br>
-    - Elodine
-  </p>
-  
-  <p class = "TurtleComment">
-          <p class="EloComment">
-		
-	4/23: Placeholder feature was pushed live. ECHO pseudocode prompts are being fine-tuned <a href="https://ttalesinteractive.com/?p=1950" target="_blank" class="EloCommentLink">here</a>. Updates have been made to token cost calculation. <br>
-    - Elodine & Turtle Guy
-  </p>
-  <p class ="TurtleComment">  
-    4/15: Added a new placeholder, PRESENTING THE {{word:}} PLACEHOLDER!!!!!!
-    <br>
-    Basically, this placeholder will choose the correct word based on the pronouns you've set up
-    <br>
-    For example, the placeholder {{word:run/runs}} will be replaced with the second word (runs) if the user pronouns are not he/him or she/her.
-    </p>
-  <p class ="TurtleComment">
-    3/24: Fixed some bugs on the add character feature, and added some new place holders, {{they}}, {{them}} and {{their}}. These Placeholders will be replaced with the pronouns you've set in the settings.
-    <br>    
-    These placeholders are not currently used in our characters, since that is up to <a class="EloComment">someone</a> to implement.
-	<a class="EloComment">(New characters will have this feature implemented. -Eli)</a>
-    <br>
-    - Turtle Guy
-    </p>
-  <p class ="TurtleComment">
-    3/21: Finnally managed to find a way to extract the character data from PNG images... so yippe, now you can import character cards from any other site.
-    <br>
-    Note that for it to import the character image too, you'll need to set the <a href="https://api.imgbb.com/" class="TurtleCommentLink">imgbb API key</a> in the settings.
-    <br>
-    - Turtle Guy
-    </p>
-        <p class="EloComment">
-		
-	3/7: Jess and Tarek (Nyar) character cards have been added to both TTI and cAI. More characters and a potential art overhaul will be coming soon as well as 'in development' tags for certain characters that may be subject to upcoming changes when first released. Anyways! See you guys soon!
-  <br>
-    - Elodine
-  </p>
-  
-      <p class="EloComment">
-	2/22: You're probably thinking things look just a little different. And you're right! Thanks to our new dev Turtle Guy we've got a much more responsive prompt screen and a new news tab where you can keep an eye on the latest in development. We've obviously moved the prompt button! It now sits just beneath your chat threads in bottom left of your screen. Thanks for checking in, we'll see you soon for a new update. <3
-    <br>
-    - Elodine
-  </p>
-  
-        <p class="EloComment">
-		
-	2/22: Turtle Guy's news panel and prompt screen fixes were blended with Bimble's code decompression for more reasonable development and some minor hotfixes to styling.
-  <br>
-    - Elodine
-  </p>
-  
-  <p class="TurtleComment">
-    2/08: Okay, so I got scolded for removing the buttons because apparently THEY ACTUALLY DID SOMETHING and we had to roll back... My bad lol.
-    <br>
-    Anyway, now it works properly (I hope)
-    <br>
-    - Turtle guy
-</p>
-  <p class="TurtleComment">
-    2/03: I deleted all the buttons that were above these texts before... In my defense they did nothing at all, I made this into a news page... I will eventually readd all those buttons in a separate overlay or window, I don't know...
-    <br>
-    Also added that my comments are green and Elo's are pink... why? CAUSE I CAN... 
-    <br>
-    Now I'm wondering if any of y'all were using this on mobile... HOW, like the site is as responsive as a 90s site... I promise I'm working on it. 
-    <br>
-    - Turtle guy
-</p>
-  <p class="TurtleComment">
-    2/02: So Idk what to write here, I'm not as good at this as Elodine, i have been indirectly contributing
-    to the project for a while, and now I'm officially part of it... Sup.
-    <br>
-    So changes in this version are, The prompts button as been moved with the rest of the buttons (Right
-    down corner).
-    <br>
-    The arrow to deploy the left panel now flips when it is closed (Blame my OCD).
-    <br>
-    The buttons now have a more smooth highlight animation.
-    <br>
-    - Turtle Guy
-  </p>
-
-  <p class="EloComment">
-    1/12: Lorebooks now work correctly. I went ahead and moved the proxy server that handles lorebooks over
-    to our
-    server after rewriting its code. Have fun!
-    <br>
-    - Elodine
-  </p>
-
-    <div style="font-size: 12px; bottom: 10px;" bis_skin_checked="1">
-                <a class="link"
-                    href="https://discord.gg/Tr8vvRUuCv" data-type="page" data-id="533">Discord &amp; Bug Reports</a>
-                <a class="link"
-                    href="https://ttalesinteractive.com/?page_id=1560" data-type="page">Support our Devs</a>
-                <a class="link"
-                    href="https://ttalesinteractive.com/?page_id=1550" data-type="page" data-id="197">Terms of
-                    Service</a>
-                <a class="link"
-                    href="https://ttalesinteractive.com/?page_id=1552" data-type="page" data-id="193">Privacy Policy</a>
-            </div>
-
-</div>
 
 
 
@@ -20829,81 +21194,7 @@ function toggleFloatingWindow() {
         closeAllPanels();
       }
     }
-            function toggleNewsPanel() {
-  var newsPanel = document.getElementById('news-panel');
-  var newsPanelStyle = window.getComputedStyle(newsPanel);
-  var newsPanelRight = newsPanelStyle.getPropertyValue('right');
-  var optionsPanel = document.getElementById('options-panel');
-  var optionsPanelStyle = window.getComputedStyle(optionsPanel);
-  var optionsPanelRight = optionsPanelStyle.getPropertyValue('right');
-
-
-
-  if (newsPanelRight === '0px') {
-    newsPanel.style.right = '-' + newsPanel.offsetWidth + 'px';
-    newsPanel.classList.remove('slide-in-animation');
-    newsPanel.addEventListener('transitionend', function () {
-      newsPanel.style.display = 'none';
-    }, { once: true });
-
-    // Save the panel state in a cookie
-    setCookie('newsPanelState', 'closed');
-  } else {
-    if(optionsPanelRight === '0px'){
-    optionsPanel.style.right = '-' + optionsPanel.offsetWidth + 'px';
-    optionsPanel.classList.remove('slide-in-animation');
-    optionsPanel.addEventListener('transitionend', function () {
-    optionsPanel.style.display = 'none';
-      }, { once: true });
-
-      // Save the panel state in a cookie
-      setCookie('optionsPanelState', 'closed');
-    }
-    newsPanel.style.display = 'block';
-    newsPanel.style.right = '0px';
-    newsPanel.classList.add('slide-in-animation');
-
-    // Save the panel state and the current version in cookies
-    setCookie('newsPanelState', 'open');
-    setCookie('lastVersion', document.querySelector('.version').innerText.trim());
-  }
-}
-function toggleOptionsPanel() {
-    var optionsPanel = document.getElementById('options-panel');
-    var optionsPanelStyle = window.getComputedStyle(optionsPanel);
-    var optionsPanelRight = optionsPanelStyle.getPropertyValue('right');
-    var newsPanel = document.getElementById('news-panel');
-  var newsPanelStyle = window.getComputedStyle(newsPanel);
-  var newsPanelRight = newsPanelStyle.getPropertyValue('right');
-
-    if (optionsPanelRight === '0px') {
-      optionsPanel.style.right = '-' + optionsPanel.offsetWidth + 'px';
-      optionsPanel.classList.remove('slide-in-animation');
-      optionsPanel.addEventListener('transitionend', function () {
-        optionsPanel.style.display = 'none';
-      }, { once: true });
-
-      // Save the panel state in a cookie
-      setCookie('optionsPanelState', 'closed');
-    } else {
-      if(newsPanelRight === '0px'){
-        newsPanel.style.right = '-' + newsPanel.offsetWidth + 'px';
-    newsPanel.classList.remove('slide-in-animation');
-    newsPanel.addEventListener('transitionend', function () {
-      newsPanel.style.display = 'none';
-    }, { once: true });
-    setCookie('newsPanelState', 'closed');
-      }
-      optionsPanel.style.display = 'block';
-      optionsPanel.style.right = '0px';
-      optionsPanel.classList.add('slide-in-animation');
-
-      // Save the panel state and the current version in cookies
-      setCookie('optionsPanelState', 'open');
-      setCookie('lastVersion', document.querySelector('.version').innerText.trim());
-    }
-  }
-
+ 
             // Helper function to set a cookie
             function setCookie(name, value) {
               document.cookie = `${name}=${value}; path=/`;
@@ -20915,63 +21206,17 @@ function toggleOptionsPanel() {
               return match ? match[2] : null;
             }
 
-            function closeAllPanels() {
-    var newsPanel = document.getElementById('news-panel');
-    var optionsPanel = document.getElementById('options-panel');
-
-    // Close news panel
-    newsPanel.style.right = '-' + newsPanel.offsetWidth + 'px';
-    newsPanel.classList.remove('slide-in-animation');
-    newsPanel.addEventListener('transitionend', function () {
-      newsPanel.style.display = 'none';
-    }, { once: true });
-    setCookie('newsPanelState', 'closed');
-
-    // Close options panel
-    optionsPanel.style.right = '-' + optionsPanel.offsetWidth + 'px';
-    optionsPanel.classList.remove('slide-in-animation');
-    optionsPanel.addEventListener('transitionend', function () {
-      optionsPanel.style.display = 'none';
-    }, { once: true });
-    setCookie('optionsPanelState', 'closed');
-  }
+/* — AFTER — */
+async function closeAllPanels() {
+  // let the promise-based helpers handle everything
+  await Promise.all([
+    closePanel(document.getElementById('news-panel')),
+    closePanel(document.getElementById('options-panel'))
+  ]);
+}
+/* ——— that’s all ——— */
 
 
-  document.addEventListener('DOMContentLoaded', function () {
-              var newsPanel = document.getElementById('news-panel');
-              var isPanelOpen = false;
-              var optionsPanel = document.getElementById('options-panel');
-  var optionsPanelStyle = window.getComputedStyle(optionsPanel);
-  var optionsPanelRight = optionsPanelStyle.getPropertyValue('right');
-              // Check the saved version and the current version
-              var savedVersion = getCookie('lastVersion');
-              var currentVersionElement = document.querySelector('.version');
-              var currentVersion = currentVersionElement ? currentVersionElement.innerText.trim() : '';
-
-              if (currentVersion !== savedVersion) {
-                // Update the panel state and save the new version
-                if(optionsPanelRight === '0px'){
-                closeAllPanels();
-    optionsPanel.style.right = '-' + optionsPanel.offsetWidth + 'px';
-    optionsPanel.classList.remove('slide-in-animation');
-    optionsPanel.addEventListener('transitionend', function () {
-    optionsPanel.style.display = 'none';
-      }, { once: true });
-
-      // Save the panel state in a cookie
-      setCookie('optionsPanelState', 'closed');
-    }
-                newsPanel.style.display = 'block';
-                newsPanel.style.right = '0px';
-                setCookie('newsPanelState', 'open');
-                setCookie('lastVersion', currentVersion);
-              } else if (isPanelOpen) {
-                newsPanel.style.display = 'block';
-                newsPanel.style.right = '0px';
-              } else {
-                newsPanel.style.right = '-350px';
-              }
-            });
 
 </script>
 <script>
@@ -21656,8 +21901,6 @@ applyGreetingButton.id = "applyGreetingButton";
 applyGreetingButton.className = "optionButton";
 applyGreetingButton.innerHTML = "Apply Greeting";
 
-// Add apply button to the container
-swapGreetingContainer.appendChild(applyGreetingButton);
 
 // Dropdown menu
 let swapGreetingDropdown = document.createElement("select");
@@ -21676,7 +21919,6 @@ purgeGreetingsButton.innerHTML = "Purge Custom Greetings";
 // Add purge button to its own container
 let purgeButtonContainer = document.createElement("div");
 purgeButtonContainer.style.marginLeft = "0px";
-purgeButtonContainer.appendChild(purgeGreetingsButton);
 
 // Add the main container and purge button container to the button grid
 document.querySelector(".buttonGrid").appendChild(swapGreetingContainer);
@@ -21876,89 +22118,330 @@ applyGreetingButton.onclick = function () {
   }, 100);
 };
 
-// Function to display Game Info
+/* =========================  BANNED-WORDS BUTTON  ========================= */
+(() => {
+  /* 1⃣  create the button ------------------------------------------------- */
+  const bannedWordsButton = document.createElement("button");
+  bannedWordsButton.id        = "bannedWordsButton";
+  bannedWordsButton.className = "optionButton";
+  bannedWordsButton.innerHTML = "Set Banned Words";
 
-function showGameInfo() {
-  rightColumn2.innerHTML = `
-<div style="text-align: center;">
-<img src="/graphics/gameinfo.png" id="gameInfoImage" alt="Game Info" style="width: 100%; height: auto;" />
-<div id="imageList">
-<p>Click any emoji for more information about a certain icon or subject.</p>
-<img src="/graphics/edit.png" class="smallImage" data-text="This button is used to edit your character card. It contains ways to change your characters personality, remind the AI of rules, and institute your own custom code." />
-<img src="/graphics/bin.png" class="smallImage" data-text="This button is used to delete data. It is used to delete both your messages or the AI's message. It will also appear next to a characters thread to delete that specific conversation. The delete button at the bottom left of your screen will clear all information stored for this site. This includes all conversations and characters." />
-<img src="/graphics/pencil2.png" class="smallImage" data-text="Text for Image 3" />
-<img src="/graphics/key.png" class="smallImage" data-text="Text for Image 4" />
-<img src="/graphics/qm.png" class="smallImage" data-text="Text for Image 5" />
-<img src="/graphics/mg.png" class="smallImage" data-text="Text for Image 6" />
-<img src="/graphics/export.png" class="smallImage" data-text="Text for Image 7" />
-<img src="/graphics/rarrow.png" class="smallImage" data-text="Text for Image 8" />
-<img src="/graphics/star.png" class="smallImage" data-text="Text for Image 9" />
-<img src="/graphics/folder.png" class="smallImage" data-text="Text for Image 10" />
-<img src="/graphics/newprompt.png" class="smallImage" data-text="Text for Image 11" />
-</div>
-<div id="imageText"></div>
-<p>*This menu is currently being built and is expected to be finished by the end of October. Please excuse the mess.</p>
-<button id="returnBtn1">Return</button>
-</div>
-`;
 
-  // Set styles
-  document.getElementById("gameInfoImage").style.borderBottom =
-    "7px solid #bf9864";
+  /* 2⃣  helpers live in the same closure ---------------------------------- */
+  const getSavedBannedWords = () => {
+    try { return JSON.parse(localStorage.getItem("bannedWords") ?? "[]"); }
+    catch { return []; }
+  };
+  const saveBannedWords = wordsArr =>
+    localStorage.setItem("bannedWords", JSON.stringify(wordsArr));
 
-  // Add click event listener to each small image
-  const smallImages = document.querySelectorAll(".smallImage");
-  smallImages.forEach((img) => {
-    // Set the size of the images to 40x40 pixels
-    img.style.width = "40px";
-    img.style.height = "40px";
+  /* 3⃣  click-handler ------------------------------------------------------ */
+  bannedWordsButton.onclick = () => {
+    const previous = getSavedBannedWords().join(", ");
+    const raw      = prompt("Enter banned words separated by commas:", previous);
+    if (raw === null) return;                        // user hit “Cancel”
 
-    img.addEventListener("click", function () {
-      // Remove outline from all images
-      smallImages.forEach((image) => {
-        image.style.outline = "";
-      });
+    const words = raw.split(",").map(w => w.trim()).filter(Boolean);
+    if (!words.length) return;
+    saveBannedWords(words);
 
-      // Add outline to the clicked image
-      this.style.outline = "2px solid #bf9864";
-      this.style.outlineOffset = "2px";
+    const bannedLine = `<banned_words>: [${words.map(w => `"${w}"`).join(", ")}]`;
+    const bannedRx   = /<banned_words>:\s*\[[^\]]*\]\s*/i;
 
-      // Display the corresponding text
-      const text = this.getAttribute("data-text");
-      document.getElementById("imageText").innerText = text;
+    /* mimic the edit-modal routine used by the other buttons */
+    const waitForThread = setInterval(() => {
+      const selected = document.querySelector("div.thread.selected");
+      if (!selected) return;
+
+      const editBtn  = selected.querySelector(".characterEditButton");
+      if (!editBtn)  return;
+
+      clearInterval(waitForThread);
+      editBtn.click();                               // open modal
+
+      setTimeout(() => {
+        const ta = document.querySelector('textarea[data-spec-key="reminderMessage"]');
+        if (!ta) return;
+
+        ta.value = bannedRx.test(ta.value)
+          ? ta.value.replace(bannedRx, bannedLine + "\n")   // replace
+          : ta.value + (ta.value.endsWith("\n") ? "" : "\n") + bannedLine; // append
+
+        const waitForSave = setInterval(() => {
+          const save = document.querySelector("button.submit");
+          if (save) { save.click(); clearInterval(waitForSave); }
+        }, 100);
+      }, 500);                                       // give modal time to render
+    }, 100);
+  };
+})();  /* ====================  END BANNED-WORDS BUTTON  ==================== */
+
+/* ==========================  NO-OOC BUTTON  ========================== */
+(() => {
+  /* 1⃣  grab (or create) the button ------------------------------------ */
+  let noOocButton = document.getElementById("noOocButton");
+  if (!noOocButton) {
+    noOocButton           = document.createElement("button");
+    noOocButton.id        = "noOocButton";
+    noOocButton.className = "optionButton";
+    noOocButton.innerHTML = "NO OOC";
+    /* drop it into the Customization block if it was missing */
+    const customizationHeader = [...document.querySelectorAll("h3")]
+      .find(h => /Customization/i.test(h.textContent));
+    (customizationHeader?.parentNode ?? document.body).appendChild(noOocButton);
+  }
+
+  /* 2⃣  constants ------------------------------------------------------- */
+  const NO_OOC_LINE =
+`<OUT_OF_CHARACTER_MODE>: disabled
+//OOC is strictly forbidden within this chat thread.`;
+  const NO_OOC_RX = /<OUT_OF_CHARACTER_MODE>:\s*disabled/i;
+
+  /* 3⃣  click-handler --------------------------------------------------- */
+  noOocButton.onclick = () => {
+    /* wait until a chat thread is selected and the “Edit” button exists */
+    const waitForThread = setInterval(() => {
+      const selectedThread = document.querySelector("div.thread.selected");
+      if (!selectedThread) return;
+
+      const editBtn = selectedThread.querySelector(".characterEditButton");
+      if (!editBtn) return;
+
+      clearInterval(waitForThread);
+      editBtn.click();                           // open the character-edit modal
+
+      /* give the modal a moment to render */
+      setTimeout(() => {
+        const ta = document.querySelector('textarea[data-spec-key="reminderMessage"]');
+        if (!ta) return;
+
+        /* don’t duplicate the block if it’s already present */
+        if (!NO_OOC_RX.test(ta.value)) {
+          ta.value += (ta.value.endsWith("\n") || ta.value === "" ? "" : "\n") +
+                      NO_OOC_LINE + "\n";
+        }
+
+        /* click the Save button once it appears */
+        const waitForSave = setInterval(() => {
+          const saveBtn = document.querySelector("button.submit");
+          if (saveBtn) { saveBtn.click(); clearInterval(waitForSave); }
+        }, 100);
+      }, 500);
+    }, 100);
+  };
+})();        /* ====================  END NO-OOC BUTTON  ==================== */
+
+/* =========================  INNER THOUGHTS BUTTON  ========================= */
+
+let innerThoughtsButton = document.getElementById("innerThoughtsButton");
+let isInnerThoughtsEnabled = false;
+
+innerThoughtsButton.onclick = async function() {
+  // Only fetch the script when turning on
+  let externalCode = isInnerThoughtsEnabled
+    ? ""
+    : await (await fetch("https://ttalesinteractive.com/play/innerthoughts.txt")).text();
+
+  // Poll until the character card opens
+  let checkExist = setInterval(async function() {
+    let selectedThread = document.querySelector("div.thread.selected");
+    if (selectedThread) {
+      let characterEditButton = selectedThread.getElementsByClassName("characterEditButton")[0];
+      if (characterEditButton) {
+        characterEditButton.click();
+
+        // Give the modal a moment to render
+        setTimeout(async function() {
+          let textareaElement = document.querySelector('textarea[data-spec-key="customCode"]');
+          if (textareaElement) {
+            if (textareaElement.value.includes(externalCode)) {
+              // Disable: remove it
+              textareaElement.value = textareaElement.value.replace(externalCode, "");
+              innerThoughtsButton.innerHTML = "Enable Inner Thoughts";
+              isInnerThoughtsEnabled = false;
+            } else {
+              // Enable: append it
+              textareaElement.value += `\n${externalCode}`;
+              innerThoughtsButton.innerHTML = "Disable Inner Thoughts";
+              isInnerThoughtsEnabled = true;
+            }
+            // Save changes
+            let saveButton = document.querySelector("button.submit");
+            if (saveButton) saveButton.click();
+          } else {
+            console.log("No textarea element found with specKey: customCode");
+          }
+        }, 500);
+
+        clearInterval(checkExist);
+      }
+    }
+  }, 100);
+};
+
+/* =========================  END INNER THOUGHTS BUTTON  ========================= */
+
+/* =========================  RECAP BUTTON  ========================= */
+
+(() => {
+  const recapThreadButton = document.getElementById("recapThreadButton");
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  recapThreadButton.onclick = async function() {
+    // 1) Grab selected thread & character ID
+    const threadEl = document.querySelector("div.thread.selected");
+    if (!threadEl) {
+      console.error("No thread selected");
+      return;
+    }
+    const charSpan = threadEl.querySelector('.characterName span[title="Character ID"]');
+    const charId = charSpan ? charSpan.textContent.trim().replace(/^#/, "") : null;
+    if (!charId) {
+      console.error("Character ID not found on selected thread");
+      return;
+    }
+
+    // 2) Snapshot current feed length
+    const feed = document.querySelector("#messageFeed");
+    const beforeCount = feed.querySelectorAll(".message").length;
+
+    // 3) Fetch & inject recap.js into customCode
+    const code = await (await fetch("https://ttalesinteractive.com/beta/oai/recap.js")).text();
+    threadEl.querySelector(".characterEditButton").click();
+    await delay(300);
+    const customTA = document.querySelector('textarea[data-spec-key="customCode"]');
+    if (!customTA) {
+      console.error("customCode textarea missing");
+      return;
+    }
+    if (!customTA.value.includes(code)) {
+      customTA.value += `\n${code}`;
+    }
+    document.querySelector("button.submit").click();
+    await delay(300);
+
+    // 4) Wait for the new recap message
+    while (feed.querySelectorAll(".message").length === beforeCount) {
+      await delay(500);
+    }
+    const allMsgs = feed.querySelectorAll(".message");
+    const recapEl = allMsgs[allMsgs.length - 1].querySelector(".messageText");
+    const recapText = recapEl ? recapEl.innerText.trim() : "";
+
+    // 5) Append recap into reminderMessage
+    threadEl.querySelector(".characterEditButton").click();
+    await delay(300);
+    const reminderTA = document.querySelector('textarea[data-spec-key="reminderMessage"]');
+    if (!reminderTA) {
+      console.error("reminderMessage textarea missing");
+      return;
+    }
+    reminderTA.value += `\n${recapText}`;
+    document.querySelector("button.submit").click();
+    await delay(300);
+
+    // 6) Clear injected customCode
+    threadEl.querySelector(".characterEditButton").click();
+    await delay(300);
+    const clearTA = document.querySelector('textarea[data-spec-key="customCode"]');
+    if (clearTA) {
+      clearTA.value = clearTA.value.replace(code, "").trim();
+      document.querySelector("button.submit").click();
+      await delay(300);
+    }
+
+    // 7) Create a new thread
+    const newThreadBtn = document.getElementById("newThreadButton");
+    if (!newThreadBtn) {
+      console.error("New Thread button not found");
+      return;
+    }
+    newThreadBtn.click();
+    await delay(500);
+
+    // 8) Find & click the character card by matching "#ID"
+    await delay(200);
+    const charCards = Array.from(document.querySelectorAll("div.character"));
+    const target = charCards.find(el => {
+      const nameEl = el.querySelector(".name");
+      return nameEl && nameEl.innerText.includes(`#${charId}`);
     });
-  });
+    if (target) {
+      await delay(200);
+      target.click();
+    } else {
+      console.error(`Could not find character card with ID #${charId}`);
+    }
+  };
+})();
 
-  document.getElementById("returnBtn1").addEventListener("click", function () {
-    rightColumn2.innerHTML = originalRightColumn2Content;
-    rightColumn2.appendChild(showGameInfoBtn);
-    rightColumn2.appendChild(showEncyclopediaBtn);
-    rightColumn2.appendChild(dropdown);
-  });
-}
-
-// Function to display Encyclopedia
-function showEncyclopedia() {
-  rightColumn2.innerHTML = `
-<h1>Encyclopedia</h1>
-<p>Being built. Coming mid November. Thanks for your patience.</p>
-<button id="returnBtn2">Return</button>
-`;
-  document.getElementById("returnBtn2").addEventListener("click", function () {
-    rightColumn2.innerHTML = originalRightColumn2Content;
-    rightColumn2.appendChild(showGameInfoBtn);
-    rightColumn2.appendChild(showEncyclopediaBtn);
-    rightColumn2.appendChild(dropdown);
-  });
-}
-
-// Create and append buttons to switch panels
-const showGameInfoBtn = document.getElementById("showGameInfoBtn");
+/* =========================  END RECAP BUTTON  ========================= */
 
 
-const showEncyclopediaBtn = document.getElementById("showEncyclopediaBtn");
+/* =========================  SAFE-WORD BUTTON  ========================= */
+(() => {
+  /* 1⃣  grab (or create) the button ------------------------------------ */
+  let safeWordButton = document.getElementById("safeWordButton");
+  if (!safeWordButton) {
+    safeWordButton           = document.createElement("button");
+    safeWordButton.id        = "safeWordButton";
+    safeWordButton.className = "optionButton";
+    safeWordButton.innerHTML = "SAFE WORD";
+    /* drop it into the Customization block if it was missing */
+    const customizationHeader = [...document.querySelectorAll("h3")]
+      .find(h => /Customization/i.test(h.textContent));
+    (customizationHeader?.parentNode ?? document.body).appendChild(safeWordButton);
+  }
 
+  /* 2⃣  helpers --------------------------------------------------------- */
+  const getSavedSafeWord = () => localStorage.getItem("safeWord") ?? "";
+  const saveSafeWord     = w => localStorage.setItem("safeWord", w);
 
+  /* 3⃣  click-handler --------------------------------------------------- */
+  safeWordButton.onclick = () => {
+    /* ask the user for (or to update) their safe-word */
+    const previous = getSavedSafeWord();
+    const word     = prompt("Enter your safe-word (single word):", previous)?.trim();
+    if (!word) return;                      // Cancel pressed or empty input
+    saveSafeWord(word);
+
+    /* build the insertion / replacement text */
+    const SAFE_WORD_LINE =
+`<SAFE_WORD_ENABLED>: ${word}
+// If this word appears in "" by the user it is important for you to throttle back on whatever action is currently taking place and slowly ease the user into something more comforting.`;
+    const SAFE_WORD_RX = /<SAFE_WORD_ENABLED>:[^\n]*\n(?:\/\/[^\n]*\n?)?/i;
+
+    /* wait until a chat thread is selected and the Edit button exists */
+    const waitForThread = setInterval(() => {
+      const selectedThread = document.querySelector("div.thread.selected");
+      if (!selectedThread) return;
+
+      const editBtn = selectedThread.querySelector(".characterEditButton");
+      if (!editBtn) return;
+
+      clearInterval(waitForThread);
+      editBtn.click();                       // open the character-edit modal
+
+      /* give the modal a moment to render */
+      setTimeout(() => {
+        const ta = document.querySelector('textarea[data-spec-key="reminderMessage"]');
+        if (!ta) return;
+
+        /* replace existing block or append a fresh one */
+        ta.value = SAFE_WORD_RX.test(ta.value)
+          ? ta.value.replace(SAFE_WORD_RX, SAFE_WORD_LINE + "\n")   // replace
+          : ta.value + (ta.value.endsWith("\n") || ta.value === "" ? "" : "\n") +
+            SAFE_WORD_LINE + "\n";                                  // append
+
+        /* click the Save button once it appears */
+        const waitForSave = setInterval(() => {
+          const saveBtn = document.querySelector("button.submit");
+          if (saveBtn) { saveBtn.click(); clearInterval(waitForSave); }
+        }, 100);
+      }, 500);
+    }, 100);
+  };
+})();           /* ====================  END SAFE-WORD BUTTON  ==================== */
 
 // Create another button for user details
 let userDetailButton = document.getElementById("userDetailButton");
@@ -22398,45 +22881,14 @@ const originalRightColumn2Content = rightColumn2.innerHTML;
     }
   }
 
-  function clickOptionsPanelButton() {
-    // Only proceed if the viewport width is 768px or less
-    if (window.innerWidth <= 768) {
-      var button = document.querySelector("#options-panel > button");
-      if (button) {
-        button.click(); // Simulate a click on the button after a delay
-      }
-    }
-  }
 
-  // Adjust panel on initial load and delay the click on the options-panel button for mobile
-  document.addEventListener('DOMContentLoaded', function() {
-    adjustPanelForMobile();
-    setTimeout(clickOptionsPanelButton, 1000); // Delay the button click by 2000 milliseconds, but only on mobile
-  });
-
-  // Adjust panel whenever the window is resized
-  window.addEventListener('resize', adjustPanelForMobile);
+document.addEventListener('DOMContentLoaded', adjustPanelForMobile);
+window.addEventListener('resize', adjustPanelForMobile);
 </script>
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Check if the viewport width is 768px or less
-    if (window.innerWidth <= 768) {
-      var newsPanel = document.getElementById('news-panel');
-      if (newsPanel) {
-        // Ensure the news panel is visible
-        newsPanel.style.display = 'block'; // Adjust as necessary based on your HTML/CSS
-        
-        // Set a high z-index to ensure it's above other elements
-        newsPanel.style.zIndex = '10001';
-        
-        // If there's specific positioning or additional styling needed to "open" the panel, add it here
-        // For example, if the panel is off-screen initially, adjust its position to be visible.
-        newsPanel.style.right = '0'; // Example to ensure it's visible, adjust based on your setup
-      }
-    }
-  });
+
   
   document.addEventListener("DOMContentLoaded", function () {
   const buttonGrid = document.querySelector(".buttonGrid");
@@ -22475,6 +22927,45 @@ const originalRightColumn2Content = rightColumn2.innerHTML;
 });
 
 </script>
+
+<script>
+/* Push any non-author bracket - e.g. “[2/28/25]” or “[UI-update]” -
+   right beside the username label */
+document.querySelectorAll('.comment').forEach(card => {
+  const body  = card.querySelector('.comment-body');
+  const label = body?.querySelector('.comment-label');
+  if (!label) return;
+
+  /* collect every “[something]” that is NOT the author tag                */
+  const tokens = Array.from(body.innerHTML.matchAll(/\[(.+?)\]/g))
+                       .map(m => m[0]);
+
+  const badgeToken = tokens.find(t =>
+      !/^\[(?:elo|turtle)\]$/i.test(t) &&               // ignore [Elo] [Turtle]
+      t !== tokens[0]);                                 // ignore first (author)
+
+  if (!badgeToken) return;
+
+  /* build the little grey sub-header and slip it right after the label */
+  const badge = document.createElement('span');
+  badge.className = 'comment-subhead';
+  badge.textContent = badgeToken.slice(1, -1);
+
+  label.after(badge);
+
+  /* scrub that original token (and an immediately following colon/dash) */
+  body.innerHTML = body.innerHTML
+      .replace(badgeToken, '')
+      .replace(/^\s*[:\-–]\s*/, '')
+      .trimStart();
+
+  /* highlight pinned notes if you like */
+  if (/pinned/i.test(badge.textContent)) card.classList.add('comment-pinned');
+});
+
+</script>
+
+
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 
