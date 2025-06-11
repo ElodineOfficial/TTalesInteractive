@@ -12180,16 +12180,21 @@ body.isMobile #news-panel {
               { name: "gpt-3.5-turbo-0125", shortLabel: "GPT 3.5 Turbo 0125: Latest and more accurate", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 16385, type: "chat-completion", tokenPricing: { prompt: 0.0005, completion: 0.0015 } },
               { name: "gpt-3.5-turbo-1106", shortLabel: "GPT 3.5 Turbo 1106: Listens better to instructions", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 16385, type: "chat-completion", tokenPricing: { prompt: 0.0005, completion: 0.0015 } },
 			
-    		  { name: "o1", shortLabel: "OAI o1 preview model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 100000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
+    		  { name: "o1", shortLabel: "OAI o1 model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
      		  { name: "o1-preview", shortLabel: "OAI o1 preview model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 31000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
-			  { name: "o1-mini", shortLabel: "OAI o1 mini preview model. ", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 64000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },  			 
-			  { name: "o3-mini", shortLabel: "OAI o3 mini model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 100000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
-			
+			  { name: "o1-mini", shortLabel: "OAI o1 mini model. ", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 64000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },  			 
+			  { name: "o3-mini", shortLabel: "NEW - OAI o3 mini model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
+    		  { name: "o3", shortLabel: "NEW - OAI o3 model.", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.24, completion: 0.36 } },
+    		
 			  { name: "gpt-4", shortLabel: "GPT 4: More expensive, currently points to gpt-4-0613", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 8192, type: "chat-completion", tokenPricing: { prompt: 0.03, completion: 0.06 } },
               { name: "gpt-4o", shortLabel: "GPT 4o: New ,quick, cheap, large context", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.015, completion: 0.03 } },
-			  { name: "gpt-4o-2024-08-06", shortLabel: "GPT 4o structured output: New ,quick, cheap, large context", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.015, completion: 0.03 } },
-			  { name: "chatgpt-4o-latest", shortLabel: "GPT 4o public research model dynamicly updated model: New ,quick, cheap, large context", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.015, completion: 0.03 } },			  
-			  { name: "gpt-4o-mini", shortLabel: "GPT 4o Mini: Newest and cheapest!", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.00015, completion: 0.0003 } },			 
+			  { name: "gpt-4o-2024-05-13", shortLabel: "GPT 4o structured output: Quick, cheap, large context", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.015, completion: 0.03 } },
+			  { name: "chatgpt-4o-latest", shortLabel: "GPT 4o public research model, quick, cheap, large context", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.015, completion: 0.03 } },			  
+			  { name: "gpt-4o-mini", shortLabel: "GPT 4o Mini: Very cheap!", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.00015, completion: 0.0003 } },			 
+			  { name: "gpt-4.1-mini", shortLabel: "GPT 4.1 Mini, new and cheap!", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.00015, completion: 0.0003 } },			 
+			  { name: "gpt-4.1", shortLabel: "GPT 4.1 Mini: New and cheap!", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.00015, completion: 0.0003 } },			 
+			  { name: "gpt-4.1-nano", shortLabel: "GPT 4.1 Nano: New and cheap!", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.00015, completion: 0.0003 } },			 
+
 			  { name: "gpt-4-0314", shortLabel: "GPT 4 0314: Legacy from March 2023", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 8192, type: "chat-completion", tokenPricing: { prompt: 0.06, completion: 0.12 } },
               { name: "gpt-4-1106-preview", shortLabel: "GPT 4 1106: Follows instructions better", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.01, completion: 0.03 } },
               { name: "gpt-4-0125-preview", shortLabel: "GPT 4 0125: Less lazy model", endpointUrl: "https://api.openai.com/v1/chat/completions", modelUrl: null, apiKey: "<OPENAI>", maxSequenceLength: 128000, type: "chat-completion", tokenPricing: { prompt: 0.01, completion: 0.03 } },
@@ -20233,7 +20238,7 @@ if (modelName.startsWith("o1")) {
 
   <!-- Version header -->
   <header class="news-header">
-    <h2 class="version">Welcome to Beta: 2.3.3</h2>
+    <h2 class="version">Welcome to Beta: 2.3.4</h2>
   </header>
 
   <!-- Feed container -->
@@ -20275,6 +20280,15 @@ if (modelName.startsWith("o1")) {
   </div>
 </article>
 
+
+<!-- 06/11 → Elo -->
+<article class="comment elo">
+  <img class="comment-avatar" src="https://files.catbox.moe/lkvnqq.png" alt="Elo avatar" />
+  <div class="comment-body">
+    <span class="comment-label">[Elo]</span>
+     [6/11/24] Model update has dropped! We've expanded on the available o1 and o3 models, as well as giving the list the usual tidying up to add any new model snapshots and remove non-fucntional ones. Quick reminder, o3 is only available for greenlit organizations, standard accounts can not access this model.
+	 </div>
+</article>
 
 
 <!-- 06/01 → Elo -->
